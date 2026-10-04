@@ -17,7 +17,8 @@
 | 6 | 2026-10-04 | 实验一 · 过程记录 | CodeBuddy（Hy4） | 补建本 AI 使用记录文件，并登记第 1–5 条历史使用记录 | `specs/19-ai-usage-log.md` | 待审 | `36b061f` |
 | 7 | 2026-10-04 | 实验一 · 步骤4（开发宪法） | CodeBuddy（Hy4） | 依据 `00-project-brief.md` 与 `01-clarifying-questions.md`（Q1–Q29 答案）生成开发宪法：约束 Agent 生成 specs/UML/代码/测试的行为，强调 UML-as-Spec、Baseline 冻结、分层架构与 MVC、业务规则不进 Controller、权限、响应信封、API 命名一致、Agent 分层挂接、测试闭环、Git 审查、密钥与 AI 使用记录 | `specs/constitution.md` | **已审查通过（2026-10-04）**：16 条原则 + 固定技术前提表 + 标准工作流全部采纳 | `9ac57af` |
 | 8 | 2026-10-04 | 准备 · 行动顺序第1步（复制基座） | CodeBuddy（Hy4） | 将基座 `作业/` 复制到 `library-hw-system-1024005295/`（排除 `__pycache__`，共 31 个文件），新增 `.gitignore`（含 `.env`、`*.db`），`git init` 并提交基线。**未改动任何功能代码** | `library-hw-system-1024005295/`（独立仓库） | 已自查：与基座逐文件一致，仅多 `.gitignore` | `a709766`（代码仓库） |
-| 9 | 2026-10-04 | 准备 · 行动顺序第2步（跑通基座） | CodeBuddy（Hy4） | 启动后端 `python main.py`，验证 `/api/health`、`/api/login`（3 个测试账号 + 错误密码）、`/api/borrow/check-quota/1`、`/api/borrow/records/1`、`/api/books` | 验证结论见"环境验证结论"小节；新发现偏差 D-06 | 已自查：接口全部可用，实测结论已登记 | 本次提交 |
+| 9 | 2026-10-04 | 准备 · 行动顺序第2步（跑通基座） | CodeBuddy（Hy4） | 启动后端 `python main.py`，验证 `/api/health`、`/api/login`（3 个测试账号 + 错误密码）、`/api/borrow/check-quota/1`、`/api/borrow/records/1`、`/api/books` | 验证结论见"环境验证结论"小节；新发现偏差 D-06 | 已自查：接口全部可用，实测结论已登记 | `46da208` |
+| 10 | 2026-10-04 | 实验一 · 步骤5（需求规格） | CodeBuddy（Hy4） | 依据 `00-project-brief.md`、`01-clarifying-questions.md`（Q1–Q29）、`constitution.md` 生成需求规格：项目目标、5 类参与者与权限矩阵、FR-000～FR-019（含新增 FR-017 续借、FR-018/019 评论评分）、NFR-001～010、BR-001～014、每条需求配 AC-xxx 验收标准、本期编码范围划分、4 项待确认问题 | `specs/02-requirements.md` | 待审：重点核对 OPEN-01（超期能否续借，与 D-06 冲突）与"仅建模"需求是否影响验收 | 本次提交 |
 
 ---
 
