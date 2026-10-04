@@ -1,0 +1,195 @@
+@startuml
+' ============================================================
+' 图书管理系统 · 包图（Package Diagram）
+' 生成依据：specs/07-architecture.md
+' 实验一 · 步骤11
+' 说明：表达分层架构、模块包与依赖方向
+'      Controller 不得直接依赖 Repository（宪法第 5 条）
+' ============================================================
+
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+skinparam package {
+  BackgroundColor #FEFECE
+  BorderColor #A80036
+}
+skinparam interface {
+  BackgroundColor #EEEEEE
+  BorderColor #A80036
+}
+skinparam arrowColor #A80036
+skinparam note {
+  BackgroundColor #FBFB77
+  BorderColor #A80036
+}
+
+title 图书管理系统包图（分层架构 + MVC）
+
+' ==================== 接入层 ====================
+package "agent（对话接入层）" as AGENT {
+  package "orchestrator-agent" as ORCH {
+    class "意图识别 / 路由 / 聚合" as Orchestrator <<Agent>>
+  }
+  package "circulation-agent" as CIRC_AGENT {
+    class "借·还·续借·预约·查记录" as CirculationAgent <<Agent>>
+  }
+  package "skills" as SKILLS {
+    class "book-search" as SkillSearch <<Skill>>
+    class "user-manage" as SkillUser <<Skill>>
+    class "book-review" as SkillReview <<Skill>>
+  }
+}
+
+' ==================== 表现层 ====================
+package "presentation（表现层 / Controller）" as PRESENTATION {
+  class "routes.py" as Routes <<Controller>> {
+    + POST /api/login
+    + GET  /api/books/search
+    + POST /api/borrow
+    + POST /api/return
+    + POST /api/renew
+    + GET  /api/reviews/{book_id}
+    + POST /api/reviews
+  }
+  class "异常处理器" as ExceptionHandler <<Controller>>
+}
+
+' ==================== 应用服务层 ====================
+package "application（应用服务层）" as APPLICATION {
+  package "services" as SERVICES {
+    class "CirculationService" as CirculationService <<Service>>
+    class "CatalogService" as CatalogService <<Service>>
+    class "ReservationService" as ReservationService <<Service>>
+    class "ReviewService" as ReviewService <<Service>>
+    class "FineService" as FineService <<Service>>
+  }
+}
+
+' ==================== 领域层 ====================
+package "domain（领域层）" as DOMAIN {
+  package "entities" as ENTITIES {
+    class "Reader / StudentReader / TeacherReader" as ReaderEntity <<Entity>>
+    class "LibraryItem / Book / Magazine / Thesis" as ItemEntity <<Entity>>
+    class "Loan" as LoanEntity <<Entity>>
+    class "Reservation" as ResvEntity <<Entity>>
+    class "Review" as ReviewEntity <<Entity>>
+    class "BorrowCard" as CardEntity <<Entity>>
+  }
+  package "valueobjects" as VALUEOBJECTS {
+    class "Rating / Money / DateRange / CardNo" as VO <<ValueObject>>
+  }
+  package "policies" as POLICIES {
+    class "BorrowPolicy" as BorrowPolicy <<Policy>>
+    class "FineRule" as FineRule <<Policy>>
+  }
+  interface "LoanRepository" as LoanRepo <<interface>>
+  interface "ReviewRepository" as ReviewRepo <<interface>>
+}
+
+' ==================== 基础设施层 ====================
+package "infrastructure（基础设施层 / 持久化）" as INFRA {
+  class "SQLAlchemy Models" as ORM <<Infrastructure>>
+  class "SessionLocal / engine" as Session <<Infrastructure>>
+  class "LoanRepositoryImpl" as LoanRepoImpl <<Repository>>
+  class "ReviewRepositoryImpl" as ReviewRepoImpl <<Repository>>
+  database "SQLite\nlibrary.db" as DB
+}
+
+' ==================== DTO ====================
+package "dto（数据传输对象）" as DTO {
+  class "LoginRequest / BorrowRequest" as ReqDTO <<DTO>>
+  class "RenewRequest" as RenewReq <<DTO>>
+  class "ReviewCreateRequest" as ReviewReq <<DTO>>
+  class "APIResponse" as RespDTO <<DTO>>
+}
+
+' ==================== 测试层 ====================
+package "test（测试层）" as TEST {
+  class "test_circulation.py" as TestCirculation <<pytest>>
+  class "test_review.py" as TestReview <<pytest>>
+}
+
+' ==================== 模块包（横向切片）====================
+package "modules（业务模块包）" as MODULES {
+  package "reader" as M_READER
+  package "card" as M_CARD
+  package "catalog" as M_CATALOG
+  package "circulation" as M_CIRCULATION
+  package "reservation" as M_RESERVATION
+  package "fine" as M_FINE
+  package "review" as M_REVIEW
+  package "admin" as M_ADMIN
+}
+
+' ==================== 依赖方向 ====================
+
+' 接入层 → 表现层（仅经 HTTP）
+Orchestrator ..> CirculationAgent : 委派
+Orchestrator ..> SkillSearch : use_skill
+Orchestrator ..> SkillUser : use_skill
+Orchestrator ..> SkillReview : use_skill
+CirculationAgent ..> Routes : HTTP (8001)
+SkillSearch ..> Routes : HTTP (8001)
+SkillUser ..> Routes : HTTP (8001)
+SkillReview ..> Routes : HTTP (8001)
+
+' 表现层 → 应用服务层（不得跨层）
+Routes --> CirculationService
+Routes --> CatalogService
+Routes --> ReservationService
+Routes --> ReviewService
+Routes --> FineService
+Routes --> ExceptionHandler
+
+' 表现层 → DTO
+Routes ..> ReqDTO : 使用
+Routes ..> RenewReq : 使用
+Routes ..> ReviewReq : 使用
+Routes ..> RespDTO : 封装响应
+
+' 应用服务层 → 领域层 + 仓储接口
+Services --> ENTITIES
+Services --> POLICIES
+Services --> VALUEOBJECTS
+CirculationService --> LoanRepo : 依赖接口
+ReviewService --> ReviewRepo : 依赖接口
+
+' 领域内部
+LoanEntity --> BorrowPolicy : 期限与续借依据
+ReviewEntity --> VO
+LoanEntity --> VO
+
+' 基础设施实现仓储接口（依赖倒置）
+LoanRepo <|.. LoanRepoImpl
+ReviewRepo <|.. ReviewRepoImpl
+LoanRepoImpl --> ORM
+ReviewRepoImpl --> ORM
+ORM --> Session
+Session --> DB
+
+' 测试层
+TestCirculation ..> Routes : TestClient
+TestReview ..> Routes : TestClient
+
+' 模块包与分层的关系（每个模块纵向跨层）
+MODULES ..> SERVICES : 各模块的服务落点
+MODULES ..> ENTITIES : 各模块的领域对象落点
+
+' ==================== 约束说明 ====================
+note as N1
+  **依赖方向约束**
+  1) presentation → application → domain
+  2) presentation 不得直接依赖 infrastructure（不得跨层调 Repository）
+  3) domain 不依赖 presentation / FastAPI / SQLite
+  4) infrastructure 实现 domain 声明的 Repository 接口（依赖倒置）
+end note
+
+note as N2
+  **本次新增功能的包落点**
+  续借：circulation 模块 → CirculationService → Loan.can_renew()
+        Agent 侧挂 circulation-agent（委派）
+  评论：review 模块 → ReviewService → Review / Rating
+        Agent 侧挂 skills/book-review（use_skill）
+end note
+
+@enduml

@@ -25,7 +25,8 @@
 | 14 | 2026-10-04 | 实验一 · 步骤8（领域模型） | CodeBuddy（Hy4） | 依据 `02-requirements.md`、`03-use-cases.md` 生成领域模型：按构造型分类（10 个实体 / 6 个值对象 / 2 个策略对象 / 4 个领域服务）、核心类详解（职责/属性/行为/约束/关系）、继承关系、关系矩阵、10 条领域不变量、目标模型与基座映射表 | `specs/05-domain-model.md` | **已审查通过（2026-10-04）**：实体来自业务概念、续借与评论均已建模、映射简化已留痕 | `37647b4` |
 | 15 | 2026-10-04 | 实验一 · 步骤9（领域类图） | CodeBuddy（Hy4） | 依据 `05-domain-model.md` 生成 PlantUML 领域类图：4 个枚举、10 个实体（含两组继承）、2 个策略对象、6 个值对象，表达关联/组合/依赖与多重度，并附续借与评论规则说明 | `specs/06-domain-class-diagram.puml` | **已审查通过（2026-10-04）**：实体继承与策略关系清晰，未混入 Controller / Repository / DTO | `170d17d` |
 | 16 | 2026-10-04 | 实验一 · 需求决策（OPEN-02 / OPEN-03） | CodeBuddy（Hy4） | 学生采纳建议：**OPEN-02 选方案 B**（罚款不落库，`fine_records` 仅建模并标注"本期不建表"）；**OPEN-03 保持只建模**（借阅证保留在文档中，实验报告写明"按教学复杂度裁剪，仅完成规格建模"） | `specs/02-requirements.md` | 已确认：后续 `13-database-design.md` 按"预留表"方式编写 | 本次提交 |
-| 17 | 2026-10-04 | 实验一 · 步骤10（架构设计） | CodeBuddy（Hy4） | 依据 `02-requirements.md`、`05-domain-model.md`、`constitution.md` 生成架构设计：分层架构总览（Mermaid）、五层职责表、8 个模块划分、MVC 映射、依赖方向、权限策略、异常处理与错误码映射、事务边界、业务规则落点表、8 种设计模式、Agent 接入层挂接规则、目标目录结构 | `specs/07-architecture.md` | 待审：重点核对"Controller 不得直接依赖 Repository"与两个新增功能的挂接位置 | 本次提交 |
+| 17 | 2026-10-04 | 实验一 · 步骤10（架构设计） | CodeBuddy（Hy4） | 依据 `02-requirements.md`、`05-domain-model.md`、`constitution.md` 生成架构设计：分层架构总览（Mermaid）、五层职责表、8 个模块划分、MVC 映射、依赖方向、权限策略、异常处理与错误码映射、事务边界、业务规则落点表、8 种设计模式、Agent 接入层挂接规则、目标目录结构 | `specs/07-architecture.md` | **已审查通过（2026-10-04）**：分层与 MVC 满足要求，Controller 未直接依赖 Repository，两个新增功能挂接位置正确 | 本次提交 |
+| 18 | 2026-10-04 | 实验一 · 步骤11（包图） | CodeBuddy（Hy4） | 依据 `07-architecture.md` 生成 PlantUML 包图：分层包（agent / presentation / application / domain / infrastructure / dto / test）、8 个业务模块包、依赖方向箭头、依赖倒置（Repository 接口与实现）、依赖约束说明与新增功能包落点 | `specs/08-package-diagram.puml` | 待审：重点核对 Controller 未直接依赖 Repository、Infrastructure 实现了 Repository 接口 | 本次提交 |
 
 ---
 
