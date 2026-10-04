@@ -1,0 +1,144 @@
+@startuml
+' ============================================================
+' 图书管理系统 · 用例图（Use Case Model）
+' 生成依据：specs/03-use-cases.md
+' 实验一 · 步骤7
+' 说明：PlantUML 文本格式（UML-as-Spec），可纳入 Git 版本管理
+' ============================================================
+
+left to right direction
+skinparam packageStyle rectangle
+skinparam usecase {
+  BackgroundColor #FEFECE
+  BorderColor #A80036
+  ArrowColor #A80036
+}
+skinparam actor {
+  BackgroundColor #FEFECE
+  BorderColor #A80036
+}
+
+title 图书管理系统用例图
+
+' ========== 参与者 ==========
+actor "读者\n(Reader)" as Reader
+actor "学生读者\n(StudentReader)" as Student
+actor "教师读者\n(TeacherReader)" as Teacher
+actor "图书管理员\n(Librarian)" as Librarian
+actor "系统管理员\n(SystemAdmin)" as SystemAdmin
+
+' 泛化关系
+Reader <|-- Student
+Reader <|-- Teacher
+
+' ========== 系统边界 ==========
+rectangle "图书管理系统" {
+
+  ' ---- 读者用例 ----
+  usecase "UC-000 登录" as UC000
+  usecase "UC-001 注册读者账号" as UC001
+  usecase "UC-002 查询图书" as UC002
+  usecase "UC-003 查询本人借阅信息" as UC003
+  usecase "UC-004 预约图书" as UC004
+  usecase "UC-005 取消预约" as UC005
+  usecase "UC-006 写图书评论与评分" as UC006
+  usecase "UC-007 查看图书评论与平均分" as UC007
+
+  ' ---- 流通用例（图书管理员代理）----
+  usecase "UC-101 办理借书" as UC101
+  usecase "UC-102 办理还书" as UC102
+  usecase "UC-103 查询读者借阅信息" as UC103
+  usecase "UC-104 办理续借" as UC104
+
+  ' ---- 被包含的规则类用例 ----
+  usecase "UC-110 计算超期罚款" as UC110
+  usecase "UC-120 验证借阅证" as UC120
+  usecase "UC-121 检查借阅规则" as UC121
+  usecase "UC-122 检查续借规则" as UC122
+
+  ' ---- 系统维护用例 ----
+  usecase "UC-201 办理借阅证" as UC201
+  usecase "UC-202 删除借阅证" as UC202
+  usecase "UC-203 添加图书管理员" as UC203
+  usecase "UC-204 删除图书管理员" as UC204
+  usecase "UC-205 添加图书标题信息" as UC205
+  usecase "UC-206 删除图书标题信息" as UC206
+  usecase "UC-207 添加馆藏副本" as UC207
+  usecase "UC-208 删除馆藏副本" as UC208
+  usecase "UC-209 维护借阅规则与罚款规则" as UC209
+}
+
+' ========== 参与者与用例的关联 ==========
+
+' 读者
+Reader --> UC000
+Reader --> UC001
+Reader --> UC002
+Reader --> UC003
+Reader --> UC004
+Reader --> UC006
+Reader --> UC007
+
+' 图书管理员
+Librarian --> UC000
+Librarian --> UC002
+Librarian --> UC101
+Librarian --> UC102
+Librarian --> UC103
+Librarian --> UC104
+
+' 系统管理员
+SystemAdmin --> UC000
+SystemAdmin --> UC201
+SystemAdmin --> UC202
+SystemAdmin --> UC203
+SystemAdmin --> UC204
+SystemAdmin --> UC205
+SystemAdmin --> UC206
+SystemAdmin --> UC207
+SystemAdmin --> UC208
+SystemAdmin --> UC209
+
+' ========== include / extend 关系 ==========
+
+UC101 ..> UC120 : <<include>>
+UC101 ..> UC121 : <<include>>
+UC102 ..> UC110 : <<include>>
+UC104 ..> UC120 : <<include>>
+UC104 ..> UC122 : <<include>>
+
+UC005 ..> UC004 : <<extend>>
+UC006 ..> UC002 : <<extend>>
+
+' ========== 备注 ==========
+
+note right of UC104
+  **本次新增功能一：续借**
+  仅 status = borrowing 可续
+  每次 +30 天，最多 1 次
+  已超期 / 已被预约不可续
+  Agent 侧：委派 circulation-agent
+end note
+
+note right of UC006
+  **本次新增功能二：评论与评分**
+  评分整数 1-5，越界由后端拒绝
+  一人一书一条（覆盖更新）
+  Agent 侧：编排层 use_skill
+end note
+
+note bottom of UC110
+  UC-110 由 UC-102 包含
+  费率：中文图书 0.5 元/天
+  上限：定价 2 倍
+end note
+
+note as N1
+  图例：
+  实线 —— 参与者与用例的关联
+  <<include>> —— 必须执行的子用例
+  <<extend>> —— 可选的扩展用例
+  空心三角 —— 参与者泛化
+end note
+
+@enduml
