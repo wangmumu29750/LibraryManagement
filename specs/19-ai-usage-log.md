@@ -21,7 +21,8 @@
 | 10 | 2026-10-04 | 实验一 · 步骤5（需求规格） | CodeBuddy（Hy4） | 依据 `00-project-brief.md`、`01-clarifying-questions.md`（Q1–Q29）、`constitution.md` 生成需求规格：项目目标、5 类参与者与权限矩阵、FR-000～FR-019（含新增 FR-017 续借、FR-018/019 评论评分）、NFR-001～010、BR-001～014、每条需求配 AC-xxx 验收标准、本期编码范围划分、4 项待确认问题 | `specs/02-requirements.md` | 待审：重点核对 OPEN-01 与"仅建模"需求是否影响验收 | `20f8a4d` |
 | 11 | 2026-10-04 | 实验一 · 步骤5（需求修订） | CodeBuddy（Hy4） | 学生确认 OPEN-01 采用**方案 A（超期不可续借）**：修订 BR-009 为定稿、新增 AC-017-7（超期续借被拒）、在 FR-017 补写"演示路径"约束 | `specs/02-requirements.md` | 已确认：后续用例、顺序图、测试计划均按方案 A 编写 | 本次提交 |
 | 12 | 2026-10-04 | 实验一 · 步骤6（用例文本） | CodeBuddy（Hy4） | 依据 `02-requirements.md` 生成用例文本：5 类参与者、22 个用例总览、include/extend 关系表、6 个重点用例完整事件流（办理借书、办理还书、计算超期罚款、办理续借、预约图书、办理借阅证）、其余用例简表、需求追溯表 | `specs/03-use-cases.md` | 待审：重点核对 UC-104 续借事件流与 UC-101 五环节完整性 | `bf38358` |
-| 13 | 2026-10-04 | 实验一 · 步骤7（用例图） | CodeBuddy（Hy4） | 依据 `03-use-cases.md` 生成 PlantUML 用例图：5 个参与者（Student/Teacher 泛化自 Reader）、22 个用例、5 组 include、2 组 extend、新增功能备注 | `specs/04-use-case-model.puml` | 待审：本机已装 Java 1.8，需 `plantuml.jar` + Graphviz 或 VS Code PlantUML 插件才能渲染预览 | 本次提交 |
+| 13 | 2026-10-04 | 实验一 · 步骤7（用例图） | CodeBuddy（Hy4） | 依据 `03-use-cases.md` 生成 PlantUML 用例图：5 个参与者（Student/Teacher 泛化自 Reader）、22 个用例、5 组 include、2 组 extend、新增功能备注 | `specs/04-use-case-model.puml` | 待审：本机已装 Java 1.8，需 `plantuml.jar` + Graphviz 或 VS Code PlantUML 插件才能渲染预览 | `49f811a` |
+| 14 | 2026-10-04 | 实验一 · 步骤8（领域模型） | CodeBuddy（Hy4） | 依据 `02-requirements.md`、`03-use-cases.md` 生成领域模型：按构造型分类（10 个实体 / 6 个值对象 / 2 个策略对象 / 4 个领域服务）、核心类详解（职责/属性/行为/约束/关系）、继承关系、关系矩阵、10 条领域不变量、目标模型与基座映射表 | `specs/05-domain-model.md` | 待审：重点核对实体是否来自业务概念、续借与评论是否建模、映射简化是否有留痕 | 本次提交 |
 
 ---
 
