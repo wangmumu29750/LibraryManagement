@@ -1,0 +1,336 @@
+@startuml
+' ============================================================
+' 图书管理系统 · 领域类图（Domain Class Diagram）
+' 生成依据：specs/05-domain-model.md
+' 实验一 · 步骤9
+' 说明：仅表达领域概念（实体 / 值对象 / 策略对象）
+'      不含 Controller、Repository、DTO 等设计类（属实验二详细设计）
+' ============================================================
+
+skinparam classAttributeIconSize 0
+skinparam class {
+  BackgroundColor #FEFECE
+  BorderColor #A80036
+  ArrowColor #A80036
+}
+skinparam stereotypeABackgroundColor #F1F1F1
+skinparam note {
+  BackgroundColor #FBFB77
+  BorderColor #A80036
+}
+
+title 图书管理系统领域类图
+
+' ==================== 枚举 ====================
+enum ReaderType {
+  UNDERGRADUATE
+  POSTGRADUATE
+  DOCTORAL
+  SPECIALTY
+  TEACHER
+}
+
+enum ItemType {
+  CN_BOOK
+  FOREIGN_BOOK
+  CN_MAGAZINE
+  FOREIGN_MAGAZINE
+  THESIS
+}
+
+enum LoanStatus {
+  borrowing
+  returned
+  overdue
+  reserved
+}
+
+enum CardStatus {
+  valid
+  expired
+  lost
+}
+
+' ==================== 读者与凭证 ====================
+abstract class Reader <<Entity>> {
+  - user_id: int
+  - username: str
+  - password: str
+  - reader_type: ReaderType
+  - max_borrow: int
+  - email: str
+  - created_at: datetime
+  __
+  + is_eligible_to_borrow(): bool
+  + can_borrow_more(current: int): bool
+  + has_overdue(loans): bool
+  + get_policy(): BorrowPolicy
+}
+
+class StudentReader <<Entity>> {
+  - grade: str
+  - major: str
+  - enrollment_year: int
+}
+
+class TeacherReader <<Entity>> {
+  - department: str
+  - title: str
+}
+
+class BorrowCard <<Entity>> {
+  - card_id: int
+  - card_no: CardNo
+  - issue_date: date
+  - expiry_date: date
+  - status: CardStatus
+  __
+  + is_valid(): bool
+  + renew(): void
+}
+
+class Librarian <<Entity>> {
+  - admin_id: int
+  - username: str
+  - password: str
+  __
+  + borrow_for(reader, item): Loan
+  + return_for(loan): FineRecord
+  + renew_for(loan): date
+}
+
+class SystemAdmin <<Entity>> {
+  - admin_id: int
+  - username: str
+  - password: str
+  __
+  + issue_card(reader): BorrowCard
+  + maintain_policy(policy): void
+  + maintain_fine_rule(rule): void
+}
+
+Reader <|-- StudentReader
+Reader <|-- TeacherReader
+Reader "1" *-- "1" BorrowCard : 持有（一人一证）
+
+' ==================== 馆藏资源 ====================
+class BookTitle <<Entity>> {
+  - title_id: int
+  - title: str
+  - author: str
+  - isbn: ISBN
+  - publisher: str
+  - published_year: int
+  - category: str
+  - location: str
+  - price: Money
+  - description: str
+  - is_active: bool
+  __
+  + available_count(): int
+  + is_reservable(): bool
+  + average_rating(): float
+}
+
+abstract class LibraryItem <<Entity>> {
+  - item_id: int
+  - barcode: Barcode
+  - title_id: int
+  - item_type: ItemType
+  - status: str
+  - location: str
+  __
+  + is_available(): bool
+  + mark_borrowed(): void
+  + mark_available(): void
+  + get_fine_rule(): FineRule
+}
+
+class Book <<Entity>> {
+  - edition: str
+  - page_count: int
+}
+
+class Magazine <<Entity>> {
+  - issue_no: str
+  - period: str
+}
+
+class Thesis <<Entity>> {
+  - degree: str
+  - advisor: str
+}
+
+LibraryItem <|-- Book
+LibraryItem <|-- Magazine
+LibraryItem <|-- Thesis
+BookTitle "1" *-- "N" LibraryItem : 组合（馆藏副本）
+
+' ==================== 流通：借阅 / 预约 / 罚款 / 评论 ====================
+class Loan <<Entity>> {
+  - record_id: int
+  - user_id: int
+  - book_id: int
+  - borrow_date: datetime
+  - due_date: datetime
+  - return_date: datetime
+  - status: LoanStatus
+  - is_overdue: bool
+  - renew_count: int
+  __
+  + can_renew(policy, has_reservation): bool
+  + renew(policy): datetime
+  + return_item(): void
+  + is_overdue_now(): bool
+}
+
+class Reservation <<Entity>> {
+  - reservation_id: int
+  - user_id: int
+  - title_id: int
+  - reserved_at: datetime
+  - expiry_date: datetime
+  - queue_position: int
+  - status: str
+  __
+  + is_active(): bool
+  + expire(): void
+  + fulfill(): void
+}
+
+class FineRecord <<Entity>> {
+  - fine_id: int
+  - record_id: int
+  - user_id: int
+  - days_overdue: int
+  - amount: Money
+  - paid: bool
+  __
+  + pay(): void
+  + is_paid(): bool
+}
+
+class Review <<Entity>> {
+  - review_id: int
+  - book_id: int
+  - user_id: int
+  - rating: Rating
+  - content: str
+  - created_at: datetime
+  - updated_at: datetime
+  __
+  + update(rating, content): void
+  + is_by(user_id): bool
+}
+
+Reader "1" -- "N" Loan : 借阅记录
+Reader "1" -- "N" Reservation : 预约
+Reader "1" -- "N" Review : 评论
+BookTitle "1" -- "N" Loan : 被借阅
+BookTitle "1" -- "N" Reservation : 被预约
+BookTitle "1" -- "N" Review : 被评论
+Loan "1" -- "0..1" FineRecord : 归还产生
+Librarian "1" -- "N" Loan : 代理办理
+
+' ==================== 策略 / 规则对象 ====================
+class BorrowPolicy <<Policy>> {
+  - policy_id: int
+  - reader_type: ReaderType
+  - max_borrow: int
+  - borrow_days: int
+  - renew_limit: int
+  - renew_days: int
+  __
+  + check_quota(current: int): bool
+  + compute_due_date(from: date): date
+  + can_renew(renew_count: int): bool
+}
+
+class FineRule <<Policy>> {
+  - rule_id: int
+  - item_type: ItemType
+  - daily_rate: Money
+  - upper_limit: Money
+  __
+  + compute(days: int, price: Money): Money
+}
+
+Reader ..> BorrowPolicy : 按读者类型取用
+Loan ..> BorrowPolicy : 期限与续借依据
+LibraryItem ..> FineRule : 按借出物类型取用
+Loan ..> FineRule : 归还时计算罚款
+
+' ==================== 值对象 ====================
+class CardNo <<ValueObject>> {
+  - value: str
+  __
+  + validate(): bool
+}
+
+class Barcode <<ValueObject>> {
+  - value: str
+  __
+  + validate(): bool
+}
+
+class ISBN <<ValueObject>> {
+  - value: str
+  __
+  + validate(): bool
+}
+
+class Money <<ValueObject>> {
+  - amount: Decimal
+  __
+  + multiply(n: int): Money
+  + cap_at(limit: Money): Money
+}
+
+class Rating <<ValueObject>> {
+  - value: int
+  __
+  + validate(): bool
+}
+
+class DateRange <<ValueObject>> {
+  - start: date
+  - end: date
+  __
+  + days_overdue(now: date): int
+}
+
+BorrowCard "1" *-- "1" CardNo
+LibraryItem "1" *-- "1" Barcode
+BookTitle "1" *-- "1" ISBN
+Review "1" *-- "1" Rating
+Loan "1" *-- "1" DateRange
+FineRecord "1" *-- "1" Money
+
+' ==================== 说明 ====================
+note right of Loan
+  **续借（本次新增功能一）**
+  can_renew() 校验四项：
+  1) status = borrowing
+  2) renew_count < renew_limit(=1)
+  3) 未超期（方案 A）
+  4) 图书未被他人预约
+  renew() 返回新的 due_date
+end note
+
+note right of Review
+  **评论与评分（本次新增功能二）**
+  Rating 校验 1-5，越界抛 InvalidRatingError
+  (user_id, book_id) 唯一：一人一书一条
+  平均分由 ReviewService 计算（保留 1 位小数）
+end note
+
+note as N1
+  构造型：
+  <<Entity>> 实体  <<ValueObject>> 值对象  <<Policy>> 策略对象
+  __
+  领域服务（CirculationService / ReservationService /
+  CatalogService / ReviewService）的职责见
+  specs/05-domain-model.md 第 5 节，本图为纯领域类，不展开。
+end note
+
+@enduml
