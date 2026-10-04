@@ -14,7 +14,8 @@
 | 3 | 2026-10-04 | 实验一 · 步骤2（澄清问题） | CodeBuddy（Hy4） | 阅读 `00-project-brief.md`，按类别提出澄清问题，覆盖参与者/用例/业务规则/借阅规则/罚款规则/预约规则/权限/数据/架构/测试/教学复杂度，并预留"人类回答"区 | `specs/01-clarifying-questions.md` | 已自查：**首版 50 条超出指导书"20–30 个"限制** | `fc3e331` |
 | 4 | 2026-10-04 | 实验一 · 步骤2（修订） | CodeBuddy（Hy4） | 人工审查发现问题数量超标，精简合并为 29 条，保持类别全覆盖，并新增"评论与评分"问题组 | `specs/01-clarifying-questions.md` | 已自查：29 条，符合 20–30 要求；⭐ 高优先级 19 条已标注 | `0ffd975` |
 | 5 | 2026-10-04 | 实验一 · 步骤3（回答澄清问题） | CodeBuddy（Hy4） | 按"以基座代码现状为准"的原则逐条回答 Q1–Q29；已通读基座 `models.py` / `routes.py` 以保证答案与实现一致 | `specs/01-clarifying-questions.md`（人类回答区） | 待审：答案中标注了 3 处"基座现状与规格的已知偏差"，见下方"偏差登记" | 本次提交 |
-| 6 | 2026-10-04 | 实验一 · 过程记录 | CodeBuddy（Hy4） | 补建本 AI 使用记录文件，并登记第 1–5 条历史使用记录 | `specs/19-ai-usage-log.md` | 待审 | 本次提交 |
+| 6 | 2026-10-04 | 实验一 · 过程记录 | CodeBuddy（Hy4） | 补建本 AI 使用记录文件，并登记第 1–5 条历史使用记录 | `specs/19-ai-usage-log.md` | 待审 | `36b061f` |
+| 7 | 2026-10-04 | 实验一 · 步骤4（开发宪法） | CodeBuddy（Hy4） | 依据 `00-project-brief.md` 与 `01-clarifying-questions.md`（Q1–Q29 答案）生成开发宪法：约束 Agent 生成 specs/UML/代码/测试的行为，强调 UML-as-Spec、Baseline 冻结、分层架构与 MVC、业务规则不进 Controller、权限、响应信封、API 命名一致、Agent 分层挂接、测试闭环、Git 审查、密钥与 AI 使用记录 | `specs/constitution.md` | 待审：共 16 条原则 + 固定技术前提表 + 标准工作流；需确认是否采纳"第 0 条固定技术前提"对技术栈的锁定 | `9ac57af` |
 
 ---
 
@@ -34,7 +35,6 @@
 
 ## 待补充（后续每次生成内容时追加）
 
-- 步骤4：`constitution.md` 生成记录
 - 步骤5：`02-requirements.md` 生成记录
 - 步骤6：`03-use-cases.md` 与 `04-use-case-model.puml` 生成记录
 - 步骤7：`05-domain-model.md` 与 `06-domain-class-diagram.puml` 生成记录
